@@ -11,7 +11,8 @@ public enum ResourceTarget: TargetType {
   case orders(_ spec: APISpecificationMethod)
   
   public var baseURL: URL {
-    return URL(string: "https://system.mycloudfulfillment.com")!
+    let subDomain = APIs.isProduction ? "api" : "testapi"
+    return URL(string: "https://\(subDomain).mycloudfulfillment.com")!
   }
   
   public var path: String {

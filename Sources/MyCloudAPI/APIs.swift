@@ -15,6 +15,8 @@ import Moya
 /// This means that the user of this APIs wrapper (Moya) has to provider Access Token Plugin
 public class APIs: MoyaProvider<ResourceTarget> {
   
+  public static var isProduction: Bool = true
+  
   public func orders() -> Single<[Order]> {
     return rx.request(.orders(.get))
              .map { try $0.toModel(ofType: [Order].self) }
