@@ -6,24 +6,31 @@ import Foundation
 import Moya
 
 /// Describe accessible resource on mycloud RESTful APIs
-public enum ResourceTarget: TargetType {
+public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
+  case authenticate(key: String, secret: String)
   case products(_ spec: APISpecificationMethod)
   case orders(_ spec: APISpecificationMethod)
   
+  // MARK: - Target type
+  
   public var baseURL: URL {
+    let ssl = APIs.isProduction ? "https" : "http"
     let subDomain = APIs.isProduction ? "api" : "testapi"
-    return URL(string: "https://\(subDomain).mycloudfulfillment.com")!
+    return URL(string: "\(ssl)://\(subDomain).mycloudfulfillment.com")!
   }
   
   public var path: String {
+    let base = "api/v1"
     switch self {
-    case .products: return "products"
-    case .orders: return "orders"
+    case .authenticate: return "\(base)/gettoken"
+    case .products: return "\(base)/products"
+    case .orders: return "\(base)/orders"
     }
   }
   
   public var method: Moya.Method {
     switch self {
+    case .authenticate: return .post
     case .products(let spec), .orders(let spec): return spec.method
     }
   }
@@ -34,6 +41,11 @@ public enum ResourceTarget: TargetType {
   
   public var task: Task {
     switch self {
+    case .authenticate(let key, let secret):
+      return .uploadMultipart([
+                                MultipartFormData(provider: .data(key.data(using: .ascii)!), name: "apikey"),
+                                MultipartFormData(provider: .data(secret.data(using: .ascii)!), name: "secretkey")
+                              ])
     case .orders(let spec):
       switch spec {
         // TODO: Complete URL paramters
@@ -52,5 +64,14 @@ public enum ResourceTarget: TargetType {
   public var headers: [String: String]? {
     // TODO: complete header if needed
     return [:]
+  }
+  
+  // MARK: - Access token authorizable
+  
+  public var authorizationType: AuthorizationType {
+    switch self {
+    case .authenticate: return .none
+    default: return .bearer
+    }
   }
 }

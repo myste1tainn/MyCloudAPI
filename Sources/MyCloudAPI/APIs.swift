@@ -15,10 +15,21 @@ import Moya
 /// This means that the user of this APIs wrapper (Moya) has to provider Access Token Plugin
 public class APIs: MoyaProvider<ResourceTarget> {
   
-  public static var isProduction: Bool = true
+  public private(set) static var isProduction: Bool = false
+  
+  public static func setProduction() {
+    isProduction = true
+  }
+  
+  public func authenticate(key: String, secret: String) -> Single<AccessToken> {
+    return rx.request(.authenticate(key: key, secret: secret))
+             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
+             .map { try $0.toModel(ofType: AccessToken.self) }
+  }
   
   public func orders() -> Single<[Order]> {
     return rx.request(.orders(.get))
+             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
              .map { try $0.toModel(ofType: [Order].self) }
   }
   
