@@ -21,7 +21,7 @@ final class APIsSpec: QuickSpec {
       }
       
       context("#authenticate") {
-        context("when using valid key and secret") {
+        context("valid key and secret") {
           it("returns token") {
             let key = "53808f0e5cb54e118ad8296a28a34b92"
             let secret = "cdd1c91bd6a544289763c19376fa2e7e135964321b064361"
@@ -35,21 +35,33 @@ final class APIsSpec: QuickSpec {
       }
       
       context("#orders") {
-        context("when using valid token") {
+        
+        context("valid token") {
+          
           it("returns orders") {
-            apis.orders()
-                .expectation(bag: disposeBag) {
-                  expect($0.count) > 0
-                }
+            apis.orders().expectation(timeout: 10, bag: disposeBag) {
+              expect($0.count) > 0
+            }
+          }
+          
+        }
+      }
+      
+      context("#orders(count:)") {
+        context("valid token") {
+          it("returns specified num item") {
+            apis.orders(count: 2).expectation(timeout: 10, bag: disposeBag) {
+              expect($0.count) == 2
+            }
           }
         }
       }
       
       context("#products") {
-        context("when using valid token") {
+        context("valid token") {
           it("returns products") {
             apis.products()
-                .expectation(bag: disposeBag) {
+                .expectation(timeout: 10, bag: disposeBag) {
                   expect($0.count) > 0
                 }
           }
@@ -57,4 +69,5 @@ final class APIsSpec: QuickSpec {
       }
     }
   }
+  
 }

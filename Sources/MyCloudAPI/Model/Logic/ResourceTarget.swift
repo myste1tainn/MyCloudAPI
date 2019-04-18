@@ -39,6 +39,12 @@ public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
     fatalError("no sample data")
   }
   
+  private func getParams(count: Int?, offset: Int?) -> [String: Any] {
+    return [("count", count), ("offset", offset)]
+      .filter { $0.1 != nil }
+      .reduce(into: [String: Any?]()) { $0[$1.0] = $1.1! }
+  }
+  
   public var task: Task {
     switch self {
     case .authenticate(let key, let secret):
@@ -48,14 +54,18 @@ public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
                               ])
     case .orders(let spec):
       switch spec {
-        // TODO: Complete URL paramters
-      case .post: return .requestParameters(parameters: [:], encoding: URLEncoding.default)
+      case .get(let count, let offset):
+        return .requestParameters(parameters: getParams(count: count, offset: offset), encoding: URLEncoding.default)
+      case .post:
+        return .requestParameters(parameters: [:], encoding: URLEncoding.default)
       default: return .requestPlain
       }
     case .products(let spec):
       switch spec {
-        // TODO: Complete URL paramters
-      case .post: return .requestParameters(parameters: [:], encoding: URLEncoding.default)
+      case .get(let count, let offset):
+        return .requestParameters(parameters: getParams(count: count, offset: offset), encoding: URLEncoding.default)
+      case .post:
+        return .requestParameters(parameters: [:], encoding: URLEncoding.default)
       default: return .requestPlain
       }
     }

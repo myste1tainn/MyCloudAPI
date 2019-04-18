@@ -27,14 +27,14 @@ public class APIs: MoyaProvider<ResourceTarget> {
              .map { try $0.toModel(ofType: AccessToken.self) }
   }
   
-  public func orders(count: Int) -> Single<[Order]> {
-    return rx.request(.orders(.get))
+  public func orders(count: Int? = nil, offset: Int? = nil) -> Single<[Order]> {
+    return rx.request(.orders(.get(count: count, offset: offset)))
              .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
              .map { try $0.toModel(ofType: [Order].self) }
   }
   
-  public func products() -> Single<[Product]> {
-    return rx.request(.products(.get))
+  public func products(count: Int? = nil, offset: Int? = nil) -> Single<[Product]> {
+    return rx.request(.products(.get(count: count, offset: offset)))
              .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
              .map { try $0.toModel(ofType: [Product].self) }
   }
