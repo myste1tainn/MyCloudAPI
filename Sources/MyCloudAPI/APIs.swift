@@ -27,7 +27,7 @@ public class APIs: MoyaProvider<ResourceTarget> {
              .map { try $0.toModel(ofType: AccessToken.self) }
   }
   
-  public func orders() -> Single<[Order]> {
+  public func orders(count: Int) -> Single<[Order]> {
     return rx.request(.orders(.get))
              .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
              .map { try $0.toModel(ofType: [Order].self) }
@@ -35,6 +35,7 @@ public class APIs: MoyaProvider<ResourceTarget> {
   
   public func products() -> Single<[Product]> {
     return rx.request(.products(.get))
+             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
              .map { try $0.toModel(ofType: [Product].self) }
   }
   
