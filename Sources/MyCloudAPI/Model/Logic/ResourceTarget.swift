@@ -42,7 +42,7 @@ public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
   private func getParams(count: Int?, offset: Int?) -> [String: Any] {
     return [("count", count), ("offset", offset)]
       .filter { $0.1 != nil }
-      .reduce(into: [String: Any?]()) { $0[$1.0] = $1.1! }
+      .reduce(into: [String: Any]()) { $0[$1.0] = $1.1! }
   }
   
   public var task: Task {

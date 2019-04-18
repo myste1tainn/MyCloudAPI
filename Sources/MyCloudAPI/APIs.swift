@@ -30,13 +30,15 @@ public class APIs: MoyaProvider<ResourceTarget> {
   public func orders(count: Int? = nil, offset: Int? = nil) -> Single<[Order]> {
     return rx.request(.orders(.get(count: count, offset: offset)))
              .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
-             .map { try $0.toModel(ofType: [Order].self) }
+             .map { try $0.toModel(ofType: ArrayResponse<Order>.self) }
+             .map { $0.data }
   }
   
   public func products(count: Int? = nil, offset: Int? = nil) -> Single<[Product]> {
     return rx.request(.products(.get(count: count, offset: offset)))
              .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
-             .map { try $0.toModel(ofType: [Product].self) }
+             .map { try $0.toModel(ofType: ArrayResponse<Product>.self) }
+             .map { $0.data }
   }
   
 }
