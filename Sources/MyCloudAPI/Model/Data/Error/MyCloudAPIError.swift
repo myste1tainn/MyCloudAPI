@@ -3,10 +3,10 @@
 //
 
 import Foundation
-import Moya
+import RxNetworking
 
 public enum MyCloudAPIError: Swift.Error {
-  case responseDecoding(response: Moya.Response, baseError: Swift.Error?)
+  case responseDecoding(response: HTTPResponse, baseError: Swift.Error?)
   case unauthorized(error: ErrorResponse?)
   case forbidden(error: ErrorResponse?)
 }

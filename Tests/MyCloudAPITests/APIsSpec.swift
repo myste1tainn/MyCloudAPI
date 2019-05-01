@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-import Moya
+import RxNetworking
 import RxSwift
 import Quick
 import Nimble

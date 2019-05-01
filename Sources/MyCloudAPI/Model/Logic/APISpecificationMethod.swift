@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import Moya
+import RxNetworking
 
 /// Represents RESTful API specification method just like HTTP method
 /// but pretty much adheres to how it works for mycloud
@@ -14,7 +14,7 @@ public enum APISpecificationMethod {
   case put(id: String)
   case delete(id: String)
   
-  public var method: Moya.Method {
+  public var method: HTTPMethod {
     switch self {
     case .get: return .get
     case .post: return .post

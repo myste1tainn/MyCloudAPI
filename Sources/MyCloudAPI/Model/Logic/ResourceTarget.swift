@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import Moya
+import RxNetworking
 
 /// Describe accessible resource on mycloud RESTful APIs
 public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
@@ -28,7 +28,7 @@ public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
     }
   }
   
-  public var method: Moya.Method {
+  public var method: Method {
     switch self {
     case .authenticate: return .post
     case .products(let spec), .orders(let spec): return spec.method
@@ -42,7 +42,7 @@ public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
   private func getParams(count: Int?, offset: Int?) -> [String: Any] {
     return [("count", count), ("offset", offset)]
       .filter { $0.1 != nil }
-      .reduce(into: [String: Any]()) { $0[$1.0] = $1.1! }
+      .reduce(into: [String: String]()) { $0[$1.0] = $1.1! }
   }
   
   public var task: Task {
@@ -55,18 +55,20 @@ public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
     case .orders(let spec):
       switch spec {
       case .get(let count, let offset):
-        return .requestParameters(parameters: getParams(count: count, offset: offset), encoding: URLEncoding.default)
+        let params = getParams(count: count, offset: offset)
+        return .parametered(with: params, encoding: .query)
       case .post:
-        return .requestParameters(parameters: [:], encoding: URLEncoding.default)
-      default: return .requestPlain
+        return .parametered(with: [:], encoding: .body(contentType: .json))
+      default: return .plain
       }
     case .products(let spec):
       switch spec {
       case .get(let count, let offset):
-        return .requestParameters(parameters: getParams(count: count, offset: offset), encoding: URLEncoding.default)
+        let params = getParams(count: count, offset: offset)
+        return .parametered(with: params, encoding: .query)
       case .post:
-        return .requestParameters(parameters: [:], encoding: URLEncoding.default)
-      default: return .requestPlain
+        return .parametered(with: [:], encoding: .body(contentType: .json))
+      default: return .plain
       }
     }
   }
