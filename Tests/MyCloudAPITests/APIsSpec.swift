@@ -1,10 +1,10 @@
 import Foundation
 import XCTest
-import RxNetworking
 import RxSwift
 import Quick
 import Nimble
 @testable import MyCloudAPI
+@testable import RxNetworking
 
 final class APIsSpec: QuickSpec {
   override func spec() {
@@ -15,8 +15,8 @@ final class APIsSpec: QuickSpec {
     describe("APIs") {
       
       beforeEach {
-        let logger = NetworkLoggerPlugin()
-        let token = AccessTokenPlugin { token }
+        let logger = LoggerPlugin()
+        let token = AccessTokenPlugin(tokenSingle: .just(token))
         apis = APIs(plugins: [logger, token])
       }
       
