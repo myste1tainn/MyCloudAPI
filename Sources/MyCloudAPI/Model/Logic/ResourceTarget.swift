@@ -3,10 +3,11 @@
 //
 
 import Foundation
-import Moya
+import RxNetworking
 
 /// Describe accessible resource on mycloud RESTful APIs
-public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
+public enum ResourceTarget: AccessTokenAuthorizable {
+
   case authenticate(key: String, secret: String)
   case products(_ spec: APISpecificationMethod)
   case orders(_ spec: APISpecificationMethod)
@@ -14,7 +15,7 @@ public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
   // MARK: - Target type
   
   public var baseURL: URL {
-    let ssl = APIs.isProduction ? "https" : "http"
+    let ssl       = APIs.isProduction ? "https" : "http"
     let subDomain = APIs.isProduction ? "api" : "testapi"
     return URL(string: "\(ssl)://\(subDomain).mycloudfulfillment.com")!
   }
@@ -28,7 +29,7 @@ public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
     }
   }
   
-  public var method: Moya.Method {
+  public var method: HTTPMethod {
     switch self {
     case .authenticate: return .post
     case .products(let spec), .orders(let spec): return spec.method
@@ -39,39 +40,39 @@ public enum ResourceTarget: TargetType, AccessTokenAuthorizable {
     fatalError("no sample data")
   }
   
-  private func getParams(count: Int?, offset: Int?) -> [String: Any] {
+  private func getParams(count: Int?, offset: Int?) -> [String: String] {
     return [("count", count), ("offset", offset)]
       .filter { $0.1 != nil }
-      .reduce(into: [String: Any]()) { $0[$1.0] = $1.1! }
+      .reduce(into: [String: String]()) { $0[$1.0] = String($1.1!) }
   }
   
   public var task: Task {
     switch self {
     case .authenticate(let key, let secret):
-      return .uploadMultipart([
-                                MultipartFormData(provider: .data(key.data(using: .ascii)!), name: "apikey"),
-                                MultipartFormData(provider: .data(secret.data(using: .ascii)!), name: "secretkey")
-                              ])
+      return .parametered(with: ["apikey": key, "secretkey": secret],
+                          encoding: .body(contentType: .form(.data)))
     case .orders(let spec):
       switch spec {
       case .get(let count, let offset):
-        return .requestParameters(parameters: getParams(count: count, offset: offset), encoding: URLEncoding.default)
+        let params = getParams(count: count, offset: offset)
+        return .parametered(with: params, encoding: .query)
       case .post:
-        return .requestParameters(parameters: [:], encoding: URLEncoding.default)
-      default: return .requestPlain
+        return .parametered(with: ["":""], encoding: .body(contentType: .json))
+      default: return .plain
       }
     case .products(let spec):
       switch spec {
       case .get(let count, let offset):
-        return .requestParameters(parameters: getParams(count: count, offset: offset), encoding: URLEncoding.default)
+        let params = getParams(count: count, offset: offset)
+        return .parametered(with: params, encoding: .query)
       case .post:
-        return .requestParameters(parameters: [:], encoding: URLEncoding.default)
-      default: return .requestPlain
+        return .parametered(with: ["":""], encoding: .body(contentType: .json))
+      default: return .plain
       }
     }
   }
   
-  public var headers: [String: String]? {
+  public var headers: [String: String] {
     // TODO: complete header if needed
     return [:]
   }
