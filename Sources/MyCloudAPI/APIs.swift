@@ -5,7 +5,7 @@
 import Foundation
 import RxSwift
 import RxMoya
-import Moya
+import RxNetworking
 
 /// Represent all APIs (services) exists in mycloud collectively
 ///
@@ -13,7 +13,7 @@ import Moya
 /// The distinction of which it uses to justify owner (authentication & authorization)
 /// is the open authentication token (OAuth token) it offers
 /// This means that the user of this APIs wrapper (Moya) has to provider Access Token Plugin
-public class APIs: MoyaProvider<ResourceTarget> {
+public class APIs: HTTPClient<ResourceTarget> {
   
   public private(set) static var isProduction: Bool = false
   
@@ -22,23 +22,23 @@ public class APIs: MoyaProvider<ResourceTarget> {
   }
   
   public func authenticate(key: String, secret: String) -> Single<AccessToken> {
-    return rx.request(.authenticate(key: key, secret: secret))
-             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
-             .map { try $0.toModel(ofType: AccessToken.self) }
+    return request(.authenticate(key: key, secret: secret))
+      .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
+      .map { try $0.toModel(ofType: AccessToken.self) }
   }
   
   public func orders(count: Int? = nil, offset: Int? = nil) -> Single<[Order]> {
-    return rx.request(.orders(.get(count: count, offset: offset)))
-             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
-             .map { try $0.toModel(ofType: ArrayResponse<Order>.self) }
-             .map { $0.data }
+    return request(.orders(.get(count: count, offset: offset)))
+      .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
+      .map { try $0.toModel(ofType: ArrayResponse<Order>.self) }
+      .map { $0.data }
   }
   
   public func products(count: Int? = nil, offset: Int? = nil) -> Single<[Product]> {
-    return rx.request(.products(.get(count: count, offset: offset)))
-             .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
-             .map { try $0.toModel(ofType: ArrayResponse<Product>.self) }
-             .map { $0.data }
+    return request(.products(.get(count: count, offset: offset)))
+      .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .background))
+      .map { try $0.toModel(ofType: ArrayResponse<Product>.self) }
+      .map { $0.data }
   }
   
 }
