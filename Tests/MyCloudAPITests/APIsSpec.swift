@@ -1,6 +1,7 @@
 import Foundation
 import XCTest
 import RxSwift
+import RxQuickNimble
 import Quick
 import Nimble
 @testable import MyCloudAPI
