@@ -4,7 +4,6 @@
 
 import Foundation
 import RxSwift
-import RxMoya
 import RxNetworking
 
 /// Represent all APIs (services) exists in mycloud collectively
